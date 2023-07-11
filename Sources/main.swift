@@ -1,5 +1,4 @@
 import CSDL2
-import Foundation
 
 precedencegroup ForwardApplication {
   associativity: left
@@ -76,9 +75,10 @@ func processInput() -> Bool {
   case SDL_QUIT.rawValue:
     return false
   case SDL_KEYDOWN.rawValue:
-    print("KeyDown \(SDL_KEYDOWN.rawValue)")
+    /* print("KeyDown \(SDL_KEYDOWN.rawValue)")
     print("KeyDown \(SDLK_ESCAPE.rawValue)")
-    return event.key.keysym.mod == SDLK_ESCAPE.rawValue ? true : false 
+    print("KeyDown \(event.key.keysym.sym)") */
+    return event.key.keysym.sym == SDLK_ESCAPE.rawValue ? false : true 
   default:
     return true
   }
@@ -90,6 +90,7 @@ while isRunning {
   isRunning = processInput()
   update()
   render(context.renderer!)
-//  sleep(2)
+// import Foundation
+// sleep(2)
 //  isRunning = false
 }
