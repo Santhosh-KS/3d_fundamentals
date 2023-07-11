@@ -19,24 +19,75 @@ extension ColorBuffer {
   }
 }
 
+struct Texture {
+  let create: (OpaquePointer) -> OpaquePointer
+}
+
+let defaultTexture = Texture(create: createTexture)
+
+func createTexture(_ renderer: OpaquePointer) -> OpaquePointer {
+  let w = Window()
+  guard
+    let texture = SDL_CreateTexture(
+      renderer,
+      SDL_PIXELFORMAT_ABGR8888.rawValue,
+      Int32(SDL_TEXTUREACCESS_STREAMING.rawValue),
+      Int32(w.size.width),
+      Int32(w.size.height)
+    )
+  else {
+    print("Failed to create Texture")
+    fatalError()
+  }
+  return texture
+}
+
+func clearColorBuffer(_ size: Size = Size()) -> [[Uint32]] {
+  let c: Uint32 = 0xFFFF_FFFF
+  return Array(repeating: Array(repeating: c, count: Int(size.height)), count: Int(size.width))
+}
+
+func render_color_buffer(_ texture: OpaquePointer, _ renderer: OpaquePointer) {
+  var col = clearColorBuffer()
+  let ret = SDL_UpdateTexture(
+    texture,
+    nil, &col,
+    Int32(
+     Int(Size().width) * MemoryLayout<[[Uint32]]>.size
+    )
+  )
+  if ret != 0 {
+    print("Texture failed")
+    fatalError()
+  }
+  SDL_RenderCopy(renderer, texture, nil, nil)
+}
+
 struct Context {
   let valid: Bool
   let window: OpaquePointer?
   let renderer: OpaquePointer?
+  let texture: OpaquePointer?
 }
 
 extension Context {
-  init(_ valid: Bool, _ window: OpaquePointer?, _ renderer: OpaquePointer?) {
+  init(
+    _ valid: Bool,
+    _ window: OpaquePointer?,
+    _ renderer: OpaquePointer?,
+    _ texture: OpaquePointer?
+  ) {
     self.valid = valid
     self.window = window
     self.renderer = renderer
+    self.texture = texture
   }
 }
 
 func destroySetup(with context: Context) {
   if context.valid {
-      defaultRenderer.destroy(context.renderer!)
-      defaultWindow.destroy(context.window!)
+    defaultRenderer.destroy(context.renderer!)
+    defaultWindow.destroy(context.window!)
   }
   SDL_Quit()
 }
@@ -44,21 +95,22 @@ func destroySetup(with context: Context) {
 func initialize_window() -> Context {
   if SDL_Init(SDL_INIT_VIDEO) != 0 {
     print("Failed to initial SDL")
-    return Context(false, nil, nil)
+    return Context(false, nil, nil, nil)
   }
-  //let window = Window().create() 
-  let window = defaultWindow.create() 
-  let renderer = defaultRenderer.render(window) 
-  return Context(true, window.self, renderer.self)
+  let window = defaultWindow.create()
+  let renderer = defaultRenderer.render(window)
+  let texture = defaultTexture.create(renderer)
+  return Context(true, window.self, renderer.self, texture)
 }
 
 func setup() {}
 func update() {}
 
-func render(_ renderer: OpaquePointer) {
-  SDL_SetRenderDrawColor(renderer, 255, 125, 64, 255)
-  SDL_RenderClear(renderer)
-  SDL_RenderPresent(renderer)
+func render(_ c: Context) {
+  SDL_SetRenderDrawColor(c.renderer!, 255, 125, 64, 255)
+  SDL_RenderClear(c.renderer!)
+  render_color_buffer(c.renderer!, c.texture!)
+  SDL_RenderPresent(c.renderer!)
 }
 
 func processInput() -> Bool {
@@ -106,13 +158,5 @@ var isRunning = context.valid
 while isRunning {
   isRunning = processInput()
   update()
-  render(context.renderer!)
-  // import Foundation
-  // sleep(2)
-  //  isRunning = false
+  render(context)
 }
-
-/*
-SDL_DestroyRenderer(renderer: OpaquePointer!)
-SDL_DestroyWindow(window: OpaquePointer!)
-*/
