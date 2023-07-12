@@ -19,6 +19,10 @@ extension ColorBuffer {
   }
 }
 
+func ErrorMessage() -> String {
+  String.init(cString: SDL_GetError()!)
+}
+
 struct Texture {
   let create: (OpaquePointer) -> OpaquePointer
 }
@@ -26,43 +30,65 @@ struct Texture {
 let defaultTexture = Texture(create: createTexture)
 
 func createTexture(_ renderer: OpaquePointer) -> OpaquePointer {
-  let w = Window()
+  let s = Size()
   guard
     let texture = SDL_CreateTexture(
       renderer,
       SDL_PIXELFORMAT_ABGR8888.rawValue,
       Int32(SDL_TEXTUREACCESS_STREAMING.rawValue),
-      Int32(w.size.width),
-      Int32(w.size.height)
+      Int32(s.width),
+      Int32(s.height)
     )
   else {
-    print("Failed to create Texture")
+    print("Failed to create Texture: \(ErrorMessage())")
     fatalError()
   }
   return texture
 }
 
 func clearColorBuffer(_ size: Size = Size()) -> [[Uint32]] {
-  let c: Uint32 = 0xFFFF_FFFF
+  let c: Uint32 = 0xFFFFFF00
   return Array(repeating: Array(repeating: c, count: Int(size.height)), count: Int(size.width))
 }
 
+  
+var col = clearColorBuffer()
 func render_color_buffer(_ texture: OpaquePointer, _ renderer: OpaquePointer) {
-  var col = clearColorBuffer()
-  let ret = SDL_UpdateTexture(
+  var ret = SDL_UpdateTexture(
     texture,
-    nil, &col,
-    Int32(
-     Int(Size().width) * MemoryLayout<[[Uint32]]>.size
-    )
+    nil, 
+    &col,
+    Int32(Int(Size().width) * MemoryLayout<Uint32>.size)
   )
   if ret != 0 {
-    print("Texture failed")
-    fatalError()
+    print("Texture failed: \(ErrorMessage())")
+    return
   }
-  SDL_RenderCopy(renderer, texture, nil, nil)
+  ret = SDL_RenderCopy(renderer, texture, nil, nil)
+  if ret != 0 {
+    print("Texture RenderCopy failed: \(ErrorMessage())")
+  }
 }
 
+class Context {
+  let valid: Bool
+  let window: OpaquePointer?
+  let renderer: OpaquePointer?
+  let texture: OpaquePointer?
+
+  init(
+    _ valid: Bool,
+    _ window: OpaquePointer?,
+    _ renderer: OpaquePointer?,
+    _ texture: OpaquePointer?
+  ) {
+    self.valid = valid
+    self.window = window
+    self.renderer = renderer
+    self.texture = texture
+  }
+}
+/*
 struct Context {
   let valid: Bool
   let window: OpaquePointer?
@@ -83,7 +109,7 @@ extension Context {
     self.texture = texture
   }
 }
-
+*/
 func destroySetup(with context: Context) {
   if context.valid {
     defaultRenderer.destroy(context.renderer!)
@@ -94,7 +120,7 @@ func destroySetup(with context: Context) {
 
 func initialize_window() -> Context {
   if SDL_Init(SDL_INIT_VIDEO) != 0 {
-    print("Failed to initial SDL")
+    print("Failed to initial SDL: \(ErrorMessage())")
     return Context(false, nil, nil, nil)
   }
   let window = defaultWindow.create()
@@ -109,7 +135,7 @@ func update() {}
 func render(_ c: Context) {
   SDL_SetRenderDrawColor(c.renderer!, 255, 125, 64, 255)
   SDL_RenderClear(c.renderer!)
-  render_color_buffer(c.renderer!, c.texture!)
+  render_color_buffer(c.texture!, c.renderer!)
   SDL_RenderPresent(c.renderer!)
 }
 
@@ -131,28 +157,6 @@ func processInput() -> Bool {
 
 let context = initialize_window()
 defer { destroySetup(with: context) }
-
-/* Create a texture for a rendering context.
-
-- Parameters:
-    - renderer:  the rendering context
-    - format:  one of the enumerated values in SDL_PixelFormatEnum
-    - access:  one of the enumerated values in SDL_TextureAccess
-    - w:  the width of the texture in pixels
-    - h:  the height of the texture in pixels
-SDL_PixelFormat
-SDL_PIXELFORMAT_ABGR8888
-SDL_TEXTUREACCESS_STREAMING
-SDL_CreateTexture(renderer: OpaquePointer!, format: Uint32, access: Int32, w: Int32, h: Int32) */
-
-/* Update the given texture rectangle with new pixel data.
-
-- Parameters:
-    - texture:  the texture to update
-    - rect:  an SDL_Rect structure representing the area to update, or NULL             to update the entire texture
-    - pixels:  the raw pixel data in the format of the texture
-    - pitch:  the number of bytes in a row of pixel data, including padding              between lines
-SDL_UpdateTexture(texture: OpaquePointer!, rect: UnsafePointer<SDL_Rect>!, pixels: UnsafeRawPointer!, pitch: Int32) */
 
 var isRunning = context.valid
 while isRunning {
