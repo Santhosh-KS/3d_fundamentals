@@ -1,12 +1,12 @@
 import CSDL2
 
 public struct Size {
-  let width: UInt64
-  let height: UInt64
+  let width: UInt32
+  let height: UInt32
 }
 
 extension Size {
-  public init(_ w: UInt64 = 800, _ h: UInt64 = 600) {
+  public init(_ w: UInt32 = 800, _ h: UInt32 = 600) {
     self.width = w
     self.height = h
   }
@@ -82,8 +82,13 @@ extension Window {
     - w:  the width of the window, in screen coordinates
     - h:  the height of the window, in screen coordinates
     - flags:  0, or one or more SDL_WindowFlags OR'd together  */
+public func getCurrentDisplayMode()  ->  Size {
+    var mode = SDL_DisplayMode()
+    SDL_GetCurrentDisplayMode(0, &mode)
+    return Size.init(UInt32(mode.w), UInt32(mode.h))
+}
 
-func createWindow() -> OpaquePointer {
+func createWindow(_ size:Size) -> OpaquePointer {
   let w = Window()
   guard
     let window: OpaquePointer = SDL_CreateWindow(
@@ -95,6 +100,7 @@ func createWindow() -> OpaquePointer {
     print("Failed to create the Window: \(ErrorMessage())")
     fatalError()
   }
+  SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN.rawValue)
   return window
 }
 
@@ -103,7 +109,7 @@ func destroyWindow(_ window: OpaquePointer) {
 }
 
 public struct NewWindow {
-  let create: () -> OpaquePointer
+  let create: (Size) -> OpaquePointer
   let destroy: (OpaquePointer) -> Void
 }
 

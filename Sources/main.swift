@@ -35,7 +35,7 @@ func initialize_window() -> Context {
     print("Failed to initial SDL: \(ErrorMessage())")
     return Context(false, nil, nil, nil)
   }
-  let window = defaultWindow.create()
+  let window = defaultWindow.create(getCurrentDisplayMode())
   let renderer = defaultRenderer.render(window)
   let texture = defaultTexture.create(renderer)
   return Context(true, window.self, renderer.self, texture)
