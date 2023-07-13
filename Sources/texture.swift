@@ -28,17 +28,30 @@ func createTexture(_ renderer: OpaquePointer) -> OpaquePointer {
   return texture
 }
 
+func grid(_ size: Size, _ color: UInt32) -> [UInt32] {
+  let s = Int(size.width * size.height)
+  let col: [UInt32] = Array.init(repeating: color, count: s)
+  /* for y in 0..<Int(size.height) {
+    for x in 0..<Int(size.width) {
+        col[(Int(size.width) * y) + x] = 0xFF0000AA 
+    }
+  } */
+  return zip(col, col.indices).map { ($1 % 10 == 0)  ? $0 : 0 }
+}
+
 func render_color_buffer(
   _ renderer: OpaquePointer,
   _ texture: OpaquePointer,
   _ col: UInt32
 ) {
 
-  let size = Int(Size().width * Size().height)
-  let rawCol: UnsafeMutablePointer<UInt32> = UnsafeMutablePointer.allocate(capacity: size)
+  let size = Size()
+  let s = Int(Size().width * Size().height)
+  let rawCol: UnsafeMutablePointer<UInt32> = UnsafeMutablePointer.allocate(capacity: s)
   defer { rawCol.deallocate() }
-  var color: [UInt32] = Array.init(repeating: col, count: size)
-  rawCol.initialize(from: &color, count: size)
+  //var color: [UInt32] = Array.init(repeating: col, count: size)
+  var color: [UInt32] = grid(size, col)
+  rawCol.initialize(from: &color, count: s)
 
   var ret = SDL_UpdateTexture(
     texture,

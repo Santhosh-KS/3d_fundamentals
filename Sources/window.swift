@@ -100,7 +100,7 @@ func createWindow(_ size:Size) -> OpaquePointer {
     print("Failed to create the Window: \(ErrorMessage())")
     fatalError()
   }
-  SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN.rawValue)
+//  SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN.rawValue)
   return window
 }
 
