@@ -62,7 +62,7 @@ extension Window {
         self.title, Int32(self.position.x), Int32(self.position.y),
         Int32(self.size.width), Int32(self.size.height), self.type)
     else {
-      print("Failed to create the Window")
+      print("Failed to create the Window: \(ErrorMessage())")
       fatalError()
     }
     return window
@@ -92,7 +92,7 @@ func createWindow() -> OpaquePointer {
       w.type
     )
   else {
-    print("Failed to create the Window")
+    print("Failed to create the Window: \(ErrorMessage())")
     fatalError()
   }
   return window

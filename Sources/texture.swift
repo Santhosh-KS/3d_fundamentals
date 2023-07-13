@@ -2,10 +2,14 @@ import CSDL2
 
 public struct Texture {
   let create: (OpaquePointer) -> OpaquePointer
-  // let destroy: (OpaquePointer) -> Void
+  let destroy: (OpaquePointer) -> Void
 }
 
-public let defaultTexture = Texture(create: createTexture)
+public let defaultTexture = Texture(create: createTexture, destroy: destroyTexture)
+
+func destroyTexture(_ texture: OpaquePointer) {
+  SDL_DestroyTexture(texture)
+}
 
 func createTexture(_ renderer: OpaquePointer) -> OpaquePointer {
   let s = Size()
@@ -27,7 +31,7 @@ func createTexture(_ renderer: OpaquePointer) -> OpaquePointer {
 func render_color_buffer(
   _ renderer: OpaquePointer,
   _ texture: OpaquePointer,
-  _ col: UInt32 
+  _ col: UInt32
 ) {
 
   let size = Int(Size().width * Size().height)

@@ -1,28 +1,5 @@
 import CSDL2
 
-struct RGBA {
-  let R: UInt8
-  let G: UInt8
-  let B: UInt8
-  let A: UInt8
-}
-
-struct ColorBuffer {
-  let width: UInt64
-  let height: UInt64
-}
-
-extension ColorBuffer {
-  init(as windowSize: Size) {
-    self.width = windowSize.width
-    self.height = windowSize.height
-  }
-}
-
-func ErrorMessage() -> String {
-  String.init(cString: SDL_GetError()!)
-}
-
 struct Context {
   let valid: Bool
   let window: OpaquePointer?
@@ -46,6 +23,7 @@ extension Context {
 
 func destroySetup(with context: Context) {
   if context.valid {
+    defaultTexture.destroy(context.texture!)
     defaultRenderer.destroy(context.renderer!)
     defaultWindow.destroy(context.window!)
   }
