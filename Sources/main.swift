@@ -1,5 +1,4 @@
 import CSDL2
-import Foundation
 
 struct RGBA {
   let R: UInt8
@@ -47,16 +46,9 @@ func createTexture(_ renderer: OpaquePointer) -> OpaquePointer {
   return texture
 }
 
-//func clearColorBuffer(_ size: Size = Size()) -> [[Uint32]] {
-func clearColorBuffer(_ size: Size = Size()) -> Uint32 {
-  let c: Uint32 = 0xFFFF_FF00
-  return c
-  // return Array(repeating: Array(repeating: c, count: Int(size.height)), count: Int(size.width))
-}
-
 func render_color_buffer(
-  _ texture: OpaquePointer,
   _ renderer: OpaquePointer,
+  _ texture: OpaquePointer,
   _ col: UnsafeMutablePointer<UInt32>
 ) {
   var ret = SDL_UpdateTexture(
@@ -75,25 +67,6 @@ func render_color_buffer(
   }
 }
 
-class Context {
-  let valid: Bool
-  let window: OpaquePointer?
-  let renderer: OpaquePointer?
-  let texture: OpaquePointer?
-
-  init(
-    _ valid: Bool,
-    _ window: OpaquePointer?,
-    _ renderer: OpaquePointer?,
-    _ texture: OpaquePointer?
-  ) {
-    self.valid = valid
-    self.window = window
-    self.renderer = renderer
-    self.texture = texture
-  }
-}
-/*
 struct Context {
   let valid: Bool
   let window: OpaquePointer?
@@ -114,7 +87,7 @@ extension Context {
     self.texture = texture
   }
 }
-*/
+
 func destroySetup(with context: Context) {
   if context.valid {
     defaultRenderer.destroy(context.renderer!)
@@ -140,23 +113,12 @@ func update() {}
 func render(_ c: Context) {
   SDL_SetRenderDrawColor(c.renderer!, 255, 125, 64, 255)
   SDL_RenderClear(c.renderer!)
-  let size = Size()
-//  let a:UInt32 = 0xFFFF0000
-  // let a: [[Uint32]] = Array.init(
-    // repeating: Array.init(repeating: 0xFFFF_0000, count: Int(size.height)),
-    // count: Int(size.width))
-// 1.	var bytes: [UInt8] = [39, 77, 111, 111, 102, 33, 39, 0]
-// 2.	let uint8Pointer = UnsafeMutablePointer<UInt8>.allocate(capacity: 8)
-// 3.	uint8Pointer.initialize(from: &bytes, count: 8)
-4
-  let rawCol: UnsafeMutablePointer<UInt32> = UnsafeMutablePointer.allocate(capacity: Int(size.width*size.height))
+  let size = Int(Size().width * Size().height)
+  let rawCol: UnsafeMutablePointer<UInt32> = UnsafeMutablePointer.allocate(capacity: size)
   defer { rawCol.deallocate() }
-  let val:UInt32 = 0xFFFF0000
-  rawCol.initialize(repeating: val, count: Int(size.width*size.height))
-  // rawCol.initialize(from: a, a.count)
-  // rawCol.pointee = a 
-  //rawCol.pointee = a 
-  render_color_buffer(c.texture!, c.renderer!, rawCol)
+  var color:[UInt32] = Array.init(repeating: 0x00FFFF00, count: size) 
+  rawCol.initialize(from: &color, count: size)
+  render_color_buffer(c.renderer!, c.texture!,  rawCol)
   SDL_RenderPresent(c.renderer!)
 }
 
@@ -182,9 +144,8 @@ var loopCount = 0;
 var isRunning = context.valid
 while isRunning {
   loopCount += 1
-  print("lc: \(loopCount)")
+  // print("lc: \(loopCount)")
   isRunning = processInput()
   update()
   render(context)
-//  sleep(2)
 }
