@@ -1,4 +1,5 @@
 import CSDL2
+import Foundation
 
 struct RGBA {
   let R: UInt8
@@ -46,19 +47,23 @@ func createTexture(_ renderer: OpaquePointer) -> OpaquePointer {
   return texture
 }
 
-func clearColorBuffer(_ size: Size = Size()) -> [[Uint32]] {
-  let c: Uint32 = 0xFFFFFF00
-  return Array(repeating: Array(repeating: c, count: Int(size.height)), count: Int(size.width))
+//func clearColorBuffer(_ size: Size = Size()) -> [[Uint32]] {
+func clearColorBuffer(_ size: Size = Size()) -> Uint32 {
+  let c: Uint32 = 0xFFFF_FF00
+  return c
+  // return Array(repeating: Array(repeating: c, count: Int(size.height)), count: Int(size.width))
 }
 
-  
-var col = clearColorBuffer()
-func render_color_buffer(_ texture: OpaquePointer, _ renderer: OpaquePointer) {
+func render_color_buffer(
+  _ texture: OpaquePointer,
+  _ renderer: OpaquePointer,
+  _ col: UnsafeMutablePointer<UInt32>
+) {
   var ret = SDL_UpdateTexture(
     texture,
-    nil, 
-    &col,
-    Int32(Int(Size().width) * MemoryLayout<Uint32>.size)
+    nil,
+    col,
+    Int32(Int(Size().width) * MemoryLayout<Uint32>.stride)
   )
   if ret != 0 {
     print("Texture failed: \(ErrorMessage())")
@@ -135,7 +140,23 @@ func update() {}
 func render(_ c: Context) {
   SDL_SetRenderDrawColor(c.renderer!, 255, 125, 64, 255)
   SDL_RenderClear(c.renderer!)
-  render_color_buffer(c.texture!, c.renderer!)
+  let size = Size()
+//  let a:UInt32 = 0xFFFF0000
+  // let a: [[Uint32]] = Array.init(
+    // repeating: Array.init(repeating: 0xFFFF_0000, count: Int(size.height)),
+    // count: Int(size.width))
+// 1.	var bytes: [UInt8] = [39, 77, 111, 111, 102, 33, 39, 0]
+// 2.	let uint8Pointer = UnsafeMutablePointer<UInt8>.allocate(capacity: 8)
+// 3.	uint8Pointer.initialize(from: &bytes, count: 8)
+4
+  let rawCol: UnsafeMutablePointer<UInt32> = UnsafeMutablePointer.allocate(capacity: Int(size.width*size.height))
+  defer { rawCol.deallocate() }
+  let val:UInt32 = 0xFFFF0000
+  rawCol.initialize(repeating: val, count: Int(size.width*size.height))
+  // rawCol.initialize(from: a, a.count)
+  // rawCol.pointee = a 
+  //rawCol.pointee = a 
+  render_color_buffer(c.texture!, c.renderer!, rawCol)
   SDL_RenderPresent(c.renderer!)
 }
 
@@ -157,10 +178,13 @@ func processInput() -> Bool {
 
 let context = initialize_window()
 defer { destroySetup(with: context) }
-
+var loopCount = 0;
 var isRunning = context.valid
 while isRunning {
+  loopCount += 1
+  print("lc: \(loopCount)")
   isRunning = processInput()
   update()
   render(context)
+//  sleep(2)
 }
