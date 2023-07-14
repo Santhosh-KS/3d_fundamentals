@@ -12,6 +12,10 @@ extension Size {
   }
 }
 
+public extension Size {
+    var count:Int { Int(self.width * self.height)}
+}
+
 public struct Position {
   let x: UInt32
   let y: UInt32

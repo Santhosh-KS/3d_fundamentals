@@ -28,15 +28,15 @@ func createTexture(_ renderer: OpaquePointer) -> OpaquePointer {
   return texture
 }
 
-func grid(_ size: Size, _ color: UInt32) -> [UInt32] {
-  let s = Int(size.width * size.height)
-  let col: [UInt32] = Array.init(repeating: color, count: s)
-  /* for y in 0..<Int(size.height) {
-    for x in 0..<Int(size.width) {
-        col[(Int(size.width) * y) + x] = 0xFF0000AA 
-    }
-  } */
-  return zip(col, col.indices).map { ($1 % 10 == 0)  ? $0 : 0 }
+func gridLine(_ size: Size, _ color: UInt32) -> [UInt32] {
+  let col: [UInt32] = Array.init(repeating: 0, count: size.count)
+  let boxWidth = 50
+  let indicies = col.indices
+  return zip(col, indicies).map { (val: UInt32, idx: Int) -> UInt32 in
+    let x = idx % Int(size.width)
+    let y = idx / Int(size.width)
+    return ((x % boxWidth == 0) || (y % boxWidth == 0)) ? color : 0
+  }
 }
 
 func render_color_buffer(
@@ -46,18 +46,17 @@ func render_color_buffer(
 ) {
 
   let size = Size()
-  let s = Int(Size().width * Size().height)
-  let rawCol: UnsafeMutablePointer<UInt32> = UnsafeMutablePointer.allocate(capacity: s)
+  let rawCol: UnsafeMutablePointer<UInt32> = UnsafeMutablePointer.allocate(capacity: size.count)
   defer { rawCol.deallocate() }
-  //var color: [UInt32] = Array.init(repeating: col, count: size)
-  var color: [UInt32] = grid(size, col)
-  rawCol.initialize(from: &color, count: s)
+  //var color: [UInt32] = Array.init(repeating: col, count: size.count)
+  var color: [UInt32] = gridLine(size, col)
+  rawCol.initialize(from: &color, count: size.count)
 
   var ret = SDL_UpdateTexture(
     texture,
     nil,
     rawCol,
-    Int32(Int(Size().height) * MemoryLayout<Uint32>.stride)
+    Int32(Int(size.height) * MemoryLayout<Uint32>.stride)
   )
   if ret != 0 {
     print("Texture failed: \(ErrorMessage())")
