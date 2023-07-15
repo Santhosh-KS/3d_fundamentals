@@ -79,3 +79,6 @@ while isRunning {
   update()
   render(context)
 }
+
+/* let r = Rectangle.template
+r.draw().chunks(Int(r.size.width)).map { print($0)} */
