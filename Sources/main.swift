@@ -41,7 +41,12 @@ func initialize_window() -> Context {
   return Context(true, window.self, renderer.self, texture)
 }
 
-func setup() {}
+
+//func setup() {
+ let points = generate(values: (-1, 1), instep: 0.25)
+ let cubePoints = combination(points, points, points).map(Vector3D.init(x:y:z:))
+//}
+
 func update() {}
 
 func render(_ c: Context) {
@@ -79,6 +84,3 @@ while isRunning {
   update()
   render(context)
 }
-
-/* let r = Rectangle.template
-r.draw().chunks(Int(r.size.width)).map { print($0)} */

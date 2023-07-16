@@ -23,3 +23,7 @@ public extension Rectangle {
       Rectangle.init(Position(x: 300, y: 300), Size(300, 150), 0xFFFF00FF)
   }
 }
+
+/* public struct Cube {
+    let points:(Int, Int, Float) -> [Float]
+} */

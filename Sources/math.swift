@@ -43,3 +43,9 @@ extension Camera {
     self.angle = a
   }
 }
+
+// Orthographic projection
+func project(_ v:Vector3D) -> Vector2D {
+  Vector2D(v.x, v.y)
+}
+
