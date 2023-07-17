@@ -41,10 +41,10 @@ func initialize_window() -> Context {
   return Context(true, window.self, renderer.self, texture)
 }
 
-
 //func setup() {
- let points = generate(values: (-1, 1), instep: 0.25)
- let cubePoints = combination(points, points, points).map(Vector3D.init(x:y:z:))
+let points = generate(values: (-1, 1), instep: 0.25)
+let cubePoints = combination(points, points, points).map(Vector3D.init(x:y:z:))
+//let projectedPoints = cubePoints.map(orthographicProjection >>> getPosition)
 //}
 
 func update() {}
@@ -52,8 +52,14 @@ func update() {}
 func render(_ c: Context) {
   SDL_SetRenderDrawColor(c.renderer!, 255, 125, 64, 255)
   SDL_RenderClear(c.renderer!)
-  let color: UInt32 = 0xAA77_AA00
-  render_color_buffer(c.renderer!, c.texture!, color)
+  let size = Size()
+  var color: [UInt32] = Array.init(repeating: 0xFF00_0000, count: size.count)
+  let pixels: UnsafeMutablePointer<UInt32> = UnsafeMutablePointer.allocate(capacity: size.count)
+  defer { pixels.deallocate() }
+  draw(rectangle: Rectangle.template, pixels: &color)
+  pixels.initialize(from: &color, count: size.count)
+  render_color_buffer(c.renderer!, c.texture!, pixels)
+  // NOTE: DONOT USE pixels variable after the render_color_buffer() call
   SDL_RenderPresent(c.renderer!)
 }
 

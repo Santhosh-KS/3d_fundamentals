@@ -45,7 +45,11 @@ extension Camera {
 }
 
 // Orthographic projection
-func project(_ v:Vector3D) -> Vector2D {
+func orthographicProjection(_ v:Vector3D) -> Vector2D {
   Vector2D(v.x, v.y)
 }
 
+func getPosition(_ v:Vector2D) -> Position {
+    let fovConst:Float = 128.0 // TODO: Fix this adjustments
+    return Position.init(UInt32(v.x * fovConst), UInt32(v.y * fovConst))
+}

@@ -4,26 +4,23 @@ public struct Rectangle {
   let color: UInt32
 }
 
-public extension Rectangle {
-  init(_ p: Position = Position(), _ s: Size = Size(), _ c: UInt32 = 0) {
+extension Rectangle {
+  public init(_ p: Position = Position(), _ s: Size = Size(), _ c: UInt32 = 0) {
     self.position = p
     self.size = s
     self.color = c
   }
 }
 
-public extension Rectangle {
-  func draw() -> [UInt32] {
+extension Rectangle {
+  public func draw() -> [UInt32] {
     return Array.init(repeating: self.color, count: self.size.count)
   }
 }
 
-public extension Rectangle {
-  static var template: Self {
-      Rectangle.init(Position(x: 300, y: 300), Size(300, 150), 0xFFFF00FF)
+extension Rectangle {
+  public static var template: Self {
+    Rectangle.init(Position(x: 300, y: 300), Size(300, 150), 0xFFFF_00FF)
   }
 }
 
-/* public struct Cube {
-    let points:(Int, Int, Float) -> [Float]
-} */
