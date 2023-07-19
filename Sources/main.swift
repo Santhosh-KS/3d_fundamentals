@@ -30,7 +30,7 @@ func destroySetup(with context: Context) {
   SDL_Quit()
 }
 
-func initialize_window() -> Context {
+func initWindow() -> Context {
   if SDL_Init(SDL_INIT_VIDEO) != 0 {
     print("Failed to initial SDL: \(ErrorMessage())")
     return Context(false, nil, nil, nil)
@@ -58,7 +58,7 @@ func render(_ c: Context) {
   defer { pixels.deallocate() }
   draw(rectangle: Rectangle.template, pixels: &color)
   pixels.initialize(from: &color, count: size.count)
-  render_color_buffer(c.renderer!, c.texture!, pixels)
+  renderColorBuffer(c.renderer!, c.texture!, pixels)
   // NOTE: DONOT USE pixels variable after the render_color_buffer() call
   SDL_RenderPresent(c.renderer!)
 }
@@ -79,7 +79,7 @@ func processInput() -> Bool {
   }
 }
 
-let context = initialize_window()
+let context = initWindow()
 defer { destroySetup(with: context) }
 var loopCount = 0
 var isRunning = context.valid

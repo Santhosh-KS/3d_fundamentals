@@ -50,7 +50,7 @@ func draw(rectangle r: Rectangle, pixels p: inout [Uint32]) {
   }
 }
 
-func render_color_buffer(
+func renderColorBuffer(
   _ renderer: OpaquePointer,
   _ texture: OpaquePointer,
   _ pixels: UnsafeMutablePointer<UInt32>

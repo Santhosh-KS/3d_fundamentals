@@ -20,7 +20,6 @@ extension Rectangle {
 
 extension Rectangle {
   public static var template: Self {
-    Rectangle.init(Position(x: 300, y: 300), Size(300, 150), 0xFFFF_00FF)
+    Rectangle.init(Position(x: 300, y: 300), Size(100, 50), 0xFFFF_00FF)
   }
 }
-
