@@ -5,7 +5,8 @@ public struct Renderer {
   let destroy: (OpaquePointer) -> Void
 }
 
-public let defaultRenderer = Renderer(render: createRenderrer, destroy: destroyRenderer)
+public let defaultRenderer = Renderer(
+  render: createRenderrer, destroy: destroyRenderer)
 
 public func createRenderrer(_ window: OpaquePointer) -> OpaquePointer {
   guard let renderrer = SDL_CreateRenderer(window, -1, 0) else {

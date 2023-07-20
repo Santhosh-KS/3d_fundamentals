@@ -12,8 +12,8 @@ extension Size {
   }
 }
 
-public extension Size {
-    var count:Int { Int(self.width * self.height)}
+extension Size {
+  public var count: Int { Int(self.width * self.height) }
 }
 
 public struct Position {
@@ -22,8 +22,10 @@ public struct Position {
 }
 
 extension Position {
-  public init(_ x: UInt32 = SDL_WINDOWPOS_CENTERED_MASK, _ y: UInt32 = SDL_WINDOWPOS_CENTERED_MASK)
-  {
+  public init(
+    _ x: UInt32 = SDL_WINDOWPOS_CENTERED_MASK,
+    _ y: UInt32 = SDL_WINDOWPOS_CENTERED_MASK
+  ) {
     self.x = x
     self.y = y
   }
@@ -86,13 +88,13 @@ extension Window {
     - w:  the width of the window, in screen coordinates
     - h:  the height of the window, in screen coordinates
     - flags:  0, or one or more SDL_WindowFlags OR'd together  */
-public func getCurrentDisplayMode()  ->  Size {
-    var mode = SDL_DisplayMode()
-    SDL_GetCurrentDisplayMode(0, &mode)
-    return Size.init(UInt32(mode.w), UInt32(mode.h))
+public func getCurrentDisplayMode() -> Size {
+  var mode = SDL_DisplayMode()
+  SDL_GetCurrentDisplayMode(0, &mode)
+  return Size.init(UInt32(mode.w), UInt32(mode.h))
 }
 
-func createWindow(_ size:Size) -> OpaquePointer {
+func createWindow(_ size: Size) -> OpaquePointer {
   let w = Window()
   guard
     let window: OpaquePointer = SDL_CreateWindow(
@@ -117,4 +119,5 @@ public struct NewWindow {
   let destroy: (OpaquePointer) -> Void
 }
 
-public let defaultWindow = NewWindow(create: createWindow, destroy: destroyWindow)
+public let defaultWindow = NewWindow(
+  create: createWindow, destroy: destroyWindow)

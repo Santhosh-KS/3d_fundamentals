@@ -5,7 +5,8 @@ public struct Texture {
   let destroy: (OpaquePointer) -> Void
 }
 
-public let defaultTexture = Texture(create: createTexture, destroy: destroyTexture)
+public let defaultTexture = Texture(
+  create: createTexture, destroy: destroyTexture)
 
 func destroyTexture(_ texture: OpaquePointer) {
   SDL_DestroyTexture(texture)
@@ -32,7 +33,8 @@ func gridLine(_ size: Size, _ color: UInt32) -> [UInt32] {
   let col: [UInt32] = Array.init(repeating: 0, count: size.count)
   let boxWidth = 50
   let indicies = col.indices
-  return zip(col, indicies.dropFirst()).map { (val: UInt32, idx: Int) -> UInt32 in
+  return zip(col, indicies.dropFirst()).map {
+    (val: UInt32, idx: Int) -> UInt32 in
     let x = idx % Int(size.height)
     let y = idx / Int(size.height)
     return ((x % boxWidth == 0) || (y % boxWidth == 0)) ? color : 0
@@ -40,12 +42,15 @@ func gridLine(_ size: Size, _ color: UInt32) -> [UInt32] {
 }
 
 func draw(rectangle r: Rectangle, pixels p: inout [Uint32]) {
-  for i in 0..<r.size.width {
-    for j in 0..<r.size.height {
+  /* print("r.width: \(r.size.width)")
+  print("r.height: \(r.size.height)") */
+  for i in 0 ..< r.size.width {
+    for j in 0 ..< r.size.height {
       let currentX = r.position.x + i
       let currentY = r.position.y + j
-        let v = Int((r.size.width * currentY) + currentX)
-        p[v] = r.color
+      print("currentX = \(currentX),currentY= \(currentY)")
+      let v = Int((r.size.width * currentY) + currentX)
+      p[v] = r.color
     }
   }
 }

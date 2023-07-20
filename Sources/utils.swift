@@ -17,7 +17,9 @@ public func |> <A, B>(_ a: A, _ f: @escaping (A) -> B) -> B {
   f(a)
 }
 
-public func >>> <A, B, C>(_ f: @escaping (A) -> B, _ g: @escaping (B) -> C) -> (A) -> C {
+public func >>> <A, B, C>(_ f: @escaping (A) -> B, _ g: @escaping (B) -> C) -> (
+  A
+) -> C {
   return { a in g(f(a)) }
 }
 
@@ -28,11 +30,24 @@ public func ErrorMessage() -> String {
 extension Array {
   public func chunks(_ chunkSize: Int) -> [[Element]] {
     return stride(from: 0, to: self.count, by: chunkSize).map {
-      Array(self[$0..<Swift.min($0 + chunkSize, self.count)])
+      Array(self[$0 ..< Swift.min($0 + chunkSize, self.count)])
     }
   }
 }
 
+extension Array {
+  public func chunkIndicies<A>(_ chunkSize: Int, _ f: @escaping (Int) -> A)
+    -> [A]
+  {
+    stride(from: 0, to: self.count, by: chunkSize).map(f)
+  }
+}
+
+extension Array {
+  public mutating func append(repeating val: Element, count: Int) {
+    self.append(contentsOf: Self.init(repeating: val, count: count))
+  }
+}
 /// If
 /// A = [1,2,3]
 /// and
@@ -47,7 +62,8 @@ public func combination<A, B>(_ xs: [A], _ ys: [B]) -> [(A, B)] {
 
 /// Extensts Combination(A,B) to Combination(A, B, C)
 /// See also: Combination(A,B)
-public func combination<A, B, C>(_ xs: [A], _ ys: [B], _ zs: [C]) -> [(A, B, C)] {
+public func combination<A, B, C>(_ xs: [A], _ ys: [B], _ zs: [C]) -> [(A, B, C)]
+{
   combination(combination(xs, ys), zs).map { (a, b) in (a.0, a.1, b) }
 }
 
@@ -55,10 +71,12 @@ public func scale(between min: Int, and max: Int) -> Int {
   abs(min) + abs(max)
 }
 
-public func generate(values between: (min: Int, max: Int), instep of: Float) -> [Float] {
+public func generate(values between: (min: Int, max: Int), instep of: Float)
+  -> [Float]
+{
   let scale = scale(between: between.min, and: between.max)
   let count = Float(scale) / of
-  return (0...Int(count)).map { number in
+  return (0 ... Int(count)).map { number in
     (Float(scale) * (Float(number) / Float(count))) - Float(between.max)
   }
 }
