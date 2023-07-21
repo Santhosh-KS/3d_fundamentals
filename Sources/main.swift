@@ -89,10 +89,10 @@ func draw(
   _ windowSize: Size
 ) {
   for i in indices {
-    if (rect.position.y ..< rect.position.y + rect.size.height).contains(
-      Int(i) / Int(windowSize.width))
+    if (rect.position.x ..< rect.position.x + rect.size.height).contains(
+      Int(i) / Int(windowSize.height))
     {
-      for j in (rect.position.x ..< rect.position.x + rect.size.width) {
+      for j in (rect.position.y ..< rect.position.y + rect.size.width) {
         data[Int(i) + j] = rect.color
       }
     }
@@ -110,4 +110,5 @@ while isRunning {
   update()
   render(context)
 }
+
 
