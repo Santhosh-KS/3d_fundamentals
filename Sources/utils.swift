@@ -108,14 +108,14 @@ public func curry<A, B, C>(_ f: @escaping (A, inout B, C) -> Void)
 }
 
 // TODO: Example code to draw rectangle inside a window
-/* let testRect = Rectangle.init(Position(2, 1), Size(4, 3), 22)
-let testRect1 = Rectangle.init(Position(3, 3), Size(4, 3), 33)
-let testRect2 = Rectangle.init(Position(1, 6), Size(3, 3), 44)
+/* let testRect = Rectangle.init(Position(2, 1), Size(4, 3), 2)
+let testRect1 = Rectangle.init(Position(3, 3), Size(4, 3), 3)
+let testRect2 = Rectangle.init(Position(1, 6), Size(3, 3), 4)
 
 var rectPos = Position(x: 3, y: 0)
-var windowSize = Size(width: 10, height: 10)
+let windowSize = Size(width: 48, height: 48)
 var mv = [UInt32]()
-mv.append(repeating: 11, count: windowSize.count)
+mv.append(repeating: 1, count: windowSize.count)
 let indices = mv.chunkIndices(Int(windowSize.width), Int32.init)
 
 //for i in indices {
@@ -129,35 +129,15 @@ let indices = mv.chunkIndices(Int(windowSize.width), Int32.init)
   }
 } */
 
-draw(indices, &mv, testRect)
+draw(indices, &mv, testRect, windowSize)
 mv.chunks(windowSize.width).map { print($0) }
 
-draw(indices, &mv, testRect1)
+/* draw(indices, &mv, testRect1)
 mv.chunks(windowSize.width).map { print($0) }
 
 draw(indices, &mv, testRect2)
-mv.chunks(windowSize.width).map { print($0) }
-// print(mv)
-// print(mv.chunkIndices(4, Int32.init))
+mv.chunks(windowSize.width).map { print($0) } */ */
 
-// getArray(value: 22, count: 2, data: &mv)
-// print(mv)
-// getArray(value: 33, count: 4, data: &mv)
-// print(mv) 
-
-func draw(_ indices: [Int32], _ data: inout [UInt32], _ rect: Rectangle) {
-  let windowSize = Size() // TODO: Pass it as an argument
-  for i in indices {
-    if (rect.position.y ..< rect.position.y + rect.size.height).contains(
-      Int(i) / Int(windowSize.width))
-    {
-      print("indices: \(i)")
-      for j in (rect.position.x ..< rect.position.x + rect.size.width) {
-        data[Int(i) + j] = rect.color
-      }
-    }
-  }
-} */
 // Example code end
 
 /* struct RGBA {

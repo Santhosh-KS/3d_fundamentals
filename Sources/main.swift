@@ -53,15 +53,16 @@ func render(_ c: Context) {
   SDL_SetRenderDrawColor(c.renderer!, 255, 125, 64, 255)
   SDL_RenderClear(c.renderer!)
   let size = Size()
-  var data: [UInt32] = Array.init(repeating: 0xFF00_0000, count: size.count)
+  // var data: [UInt32] = Array.init(repeating: 0xFF00_0000, count: size.count)
+  var data: [UInt32] = gridLine(size, 0x0412_3412)
   let pixels: UnsafeMutablePointer<UInt32> = UnsafeMutablePointer.allocate(
     capacity: size.count)
   defer { pixels.deallocate() }
-  let indices = data.chunkIndices(size.width, Int32.init)
-  draw(indices, &data, Rectangle.template)
+  let indices = data.chunkIndices(size.height, Int32.init)
+  draw(indices, &data, Rectangle.template, size)
   pixels.initialize(from: &data, count: size.count)
   renderColorBuffer(c.renderer!, c.texture!, pixels)
-  // NOTE: DONOT USE pixels variable after the render_color_buffer() call
+  // NOTE: DONOT USE pixels variable after the renderColorBuffer() call
   SDL_RenderPresent(c.renderer!)
 }
 
@@ -81,13 +82,16 @@ func processInput() -> Bool {
   }
 }
 
-func draw(_ indices: [Int32], _ data: inout [UInt32], _ rect: Rectangle) {
-  let windowSize = Size() // TODO: Pass it as an argument
+func draw(
+  _ indices: [Int32], 
+  _ data: inout [UInt32], 
+  _ rect: Rectangle,
+  _ windowSize: Size
+) {
   for i in indices {
     if (rect.position.y ..< rect.position.y + rect.size.height).contains(
       Int(i) / Int(windowSize.width))
     {
-      print("indices: \(i)")
       for j in (rect.position.x ..< rect.position.x + rect.size.width) {
         data[Int(i) + j] = rect.color
       }
@@ -106,3 +110,4 @@ while isRunning {
   update()
   render(context)
 }
+
