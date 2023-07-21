@@ -41,20 +41,6 @@ func gridLine(_ size: Size, _ color: UInt32) -> [UInt32] {
   }
 }
 
-func draw(rectangle r: Rectangle, pixels p: inout [Uint32]) {
-  /* print("r.width: \(r.size.width)")
-  print("r.height: \(r.size.height)") */
-  for i in 0 ..< r.size.width {
-    for j in 0 ..< r.size.height {
-      let currentX = r.position.x + i
-      let currentY = r.position.y + j
-      print("currentX = \(currentX),currentY= \(currentY)")
-      let v = Int((r.size.width * currentY) + currentX)
-      p[v] = r.color
-    }
-  }
-}
-
 func renderColorBuffer(
   _ renderer: OpaquePointer,
   _ texture: OpaquePointer,

@@ -1,12 +1,12 @@
 import CSDL2
 
 public struct Size {
-  let width: UInt32
-  let height: UInt32
+  let width: Int  
+  let height: Int  
 }
 
 extension Size {
-  public init(_ w: UInt32 = 800, _ h: UInt32 = 600) {
+  public init(_ w: Int = 800, _ h: Int = 600) {
     self.width = w
     self.height = h
   }
@@ -17,8 +17,8 @@ extension Size {
 }
 
 public struct Position {
-  let x: UInt32
-  let y: UInt32
+  let x: Int 
+  let y: Int 
 }
 
 extension Position {
@@ -26,8 +26,8 @@ extension Position {
     _ x: UInt32 = SDL_WINDOWPOS_CENTERED_MASK,
     _ y: UInt32 = SDL_WINDOWPOS_CENTERED_MASK
   ) {
-    self.x = x
-    self.y = y
+    self.x = Int(x)
+    self.y = Int(y)
   }
 }
 
@@ -91,7 +91,7 @@ extension Window {
 public func getCurrentDisplayMode() -> Size {
   var mode = SDL_DisplayMode()
   SDL_GetCurrentDisplayMode(0, &mode)
-  return Size.init(UInt32(mode.w), UInt32(mode.h))
+  return Size.init(Int(mode.w), Int(mode.h))
 }
 
 func createWindow(_ size: Size) -> OpaquePointer {

@@ -53,12 +53,13 @@ func render(_ c: Context) {
   SDL_SetRenderDrawColor(c.renderer!, 255, 125, 64, 255)
   SDL_RenderClear(c.renderer!)
   let size = Size()
-  var color: [UInt32] = Array.init(repeating: 0xFF00_0000, count: size.count)
+  var data: [UInt32] = Array.init(repeating: 0xFF00_0000, count: size.count)
   let pixels: UnsafeMutablePointer<UInt32> = UnsafeMutablePointer.allocate(
     capacity: size.count)
   defer { pixels.deallocate() }
-  draw(rectangle: Rectangle.template, pixels: &color)
-  pixels.initialize(from: &color, count: size.count)
+  let indices = data.chunkIndices(size.width, Int32.init)
+  draw(indices, &data, Rectangle.template)
+  pixels.initialize(from: &data, count: size.count)
   renderColorBuffer(c.renderer!, c.texture!, pixels)
   // NOTE: DONOT USE pixels variable after the render_color_buffer() call
   SDL_RenderPresent(c.renderer!)
@@ -80,7 +81,21 @@ func processInput() -> Bool {
   }
 }
 
-/* let context = initWindow()
+func draw(_ indices: [Int32], _ data: inout [UInt32], _ rect: Rectangle) {
+  let windowSize = Size() // TODO: Pass it as an argument
+  for i in indices {
+    if (rect.position.y ..< rect.position.y + rect.size.height).contains(
+      Int(i) / Int(windowSize.width))
+    {
+      print("indices: \(i)")
+      for j in (rect.position.x ..< rect.position.x + rect.size.width) {
+        data[Int(i) + j] = rect.color
+      }
+    }
+  }
+}
+
+let context = initWindow()
 defer { destroySetup(with: context) }
 var loopCount = 0
 var isRunning = context.valid
@@ -90,27 +105,4 @@ while isRunning {
   isRunning = processInput()
   update()
   render(context)
-} */
-let winSize = Size()
-let testRect = Rectangle.template
-print(testRect.draw().count)
-print("\(testRect.position.x), \(testRect.position.y)")
-print("\(testRect.size.width), \(testRect.size.height)")
-print("\(winSize.width), \(winSize.height)")
-
-/* func getArray<A>(value:A, count:Int, data:inout [A]) -> Void {
-    data.append(contentsOf: Array.init(repeating: value, count: count))
-} */
-
-var mv = [UInt32]()
-mv.append(repeating: 22, count: 4)
-print(mv)
-mv.append(repeating: 33, count: 4)
-mv.append(repeating: 44, count: 4)
-mv.append(repeating: 55, count: 2)
-print(mv)
-print(mv.chunkIndicies(4, Int32.init))
-// getArray(value: 22, count: 2, data: &mv)
-// print(mv)
-// getArray(value: 33, count: 4, data: &mv)
-// print(mv)
+}
