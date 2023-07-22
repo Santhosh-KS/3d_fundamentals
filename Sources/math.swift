@@ -4,8 +4,7 @@ public struct Vector2D {
   let x: Float
   let y: Float
 }
-struct Santhosh {
-}
+
 extension Vector2D {
   public init(_ x: Float = 0, _ y: Float = 0) {
     self.x = x
@@ -52,5 +51,5 @@ func orthographicProjection(_ v: Vector3D) -> Vector2D {
 
 func getPosition(_ v: Vector2D) -> Position {
   let fovConst: Float = 128.0  // TODO: Fix this adjustments
-  return Position.init(UInt32(v.x * fovConst), UInt32(v.y * fovConst))
+  return Position.init(x: Int(v.x * fovConst), y: Int(v.y * fovConst))
 }

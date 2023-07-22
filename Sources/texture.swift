@@ -31,7 +31,7 @@ func createTexture(_ renderer: OpaquePointer) -> OpaquePointer {
 
 func gridLine(_ size: Size, _ color: UInt32) -> [UInt32] {
   let col: [UInt32] = Array.init(repeating: 0, count: size.count)
-  let boxWidth = 50
+  let boxWidth = 10
   let indicies = col.indices
   return zip(col, indicies.dropFirst()).map {
     (val: UInt32, idx: Int) -> UInt32 in

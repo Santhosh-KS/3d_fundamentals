@@ -44,7 +44,7 @@ func initWindow() -> Context {
 //func setup() {
 let points = generate(values: (-1, 1), instep: 0.25)
 let cubePoints = combination(points, points, points).map(Vector3D.init(x:y:z:))
-//let projectedPoints = cubePoints.map(orthographicProjection >>> getPosition)
+let projectedPoints = cubePoints.map(orthographicProjection >>> getPosition)
 //}
 
 func update() {}
@@ -59,7 +59,8 @@ func render(_ c: Context) {
     capacity: size.count)
   defer { pixels.deallocate() }
   let indices = data.chunkIndices(size.height, Int32.init)
-  draw(indices, &data, Rectangle.template, size)
+  let rect = Rectangle(Position(10, 10), Size(10, 10), 0xFFAA_BBCC)
+  draw(indices, &data, rect, size)
   pixels.initialize(from: &data, count: size.count)
   renderColorBuffer(c.renderer!, c.texture!, pixels)
   // NOTE: DONOT USE pixels variable after the renderColorBuffer() call
@@ -83,8 +84,8 @@ func processInput() -> Bool {
 }
 
 func draw(
-  _ indices: [Int32], 
-  _ data: inout [UInt32], 
+  _ indices: [Int32],
+  _ data: inout [UInt32],
   _ rect: Rectangle,
   _ windowSize: Size
 ) {
@@ -92,6 +93,7 @@ func draw(
     if (rect.position.x ..< rect.position.x + rect.size.height).contains(
       Int(i) / Int(windowSize.height))
     {
+      print("indicies \(Int(i)): \(Int(i)/Int(windowSize.height)) ")
       for j in (rect.position.y ..< rect.position.y + rect.size.width) {
         data[Int(i) + j] = rect.color
       }
@@ -110,5 +112,3 @@ while isRunning {
   update()
   render(context)
 }
-
-

@@ -1,12 +1,12 @@
 import CSDL2
 
 public struct Size {
-  let width: Int  
-  let height: Int  
+  let width: Int
+  let height: Int
 }
 
 extension Size {
-  public init(_ w: Int = 800, _ h: Int = 600) {
+  public init(_ w: Int = 100, _ h: Int = 50) {
     self.width = w
     self.height = h
   }
@@ -17,8 +17,8 @@ extension Size {
 }
 
 public struct Position {
-  let x: Int 
-  let y: Int 
+  let x: Int
+  let y: Int
 }
 
 extension Position {
