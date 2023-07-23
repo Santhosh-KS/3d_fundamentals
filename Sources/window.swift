@@ -6,7 +6,7 @@ public struct Size {
 }
 
 extension Size {
-  public init(_ w: Int = 100, _ h: Int = 50) {
+  public init(_ w: Int = 600, _ h: Int = 600) {
     self.width = w
     self.height = h
   }

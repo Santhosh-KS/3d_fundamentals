@@ -53,3 +53,7 @@ func getPosition(_ v: Vector2D) -> Position {
   let fovConst: Float = 128.0  // TODO: Fix this adjustments
   return Position.init(x: Int(v.x * fovConst), y: Int(v.y * fovConst))
 }
+
+func moveToLocation(_ s: Size, _ p: Position) -> Position {
+  Position.init(x: p.x + s.width, y: p.y + s.height)
+}
