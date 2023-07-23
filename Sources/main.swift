@@ -40,18 +40,27 @@ func initWindow() -> Context {
   let texture = defaultTexture.create(renderer)
   return Context(true, window.self, renderer.self, texture)
 }
+
+//let orthoProjection = ProjectionType.orthographic
+
 let windowCenter = Size(Size().width / 2, Size().height / 2)
 let moveToWinodowCenter = curry(moveToLocation)(windowCenter)
 let points = generate(values: (-1, 1), instep: 0.25)
 let cubePoints = combination(points, points, points).map(Vector3D.init(x:y:z:))
+let cameraPosition = Vector3D(0, 0, -5)
+let adjustCamera = curry(adjustCameraPosition)(cameraPosition)
+/* let projectedPoints = cubePoints.map(
+  adjustCamera >>> orthographicProjection >>> getPosition >>> moveToWinodowCenter) */
+
 let projectedPoints = cubePoints.map(
-  orthographicProjection >>> getPosition >>> moveToWinodowCenter)
+  adjustCamera >>> perspectiveProjection >>> getPosition >>> moveToWinodowCenter
+)
 
 func update() {}
 
 func render(_ c: Context) {
-  SDL_SetRenderDrawColor(c.renderer!, 255, 125, 64, 255)
-  SDL_RenderClear(c.renderer!)
+  /* SDL_SetRenderDrawColor(c.renderer!, 255, 125, 64, 255)
+  SDL_RenderClear(c.renderer!) */
   let size = Size()
   // var data: [UInt32] = Array.init(repeating: 0xFF00_0000, count: size.count)
   var data: [UInt32] = gridLine(size, 0x0412_3412)
