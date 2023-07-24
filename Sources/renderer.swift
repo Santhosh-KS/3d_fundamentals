@@ -10,7 +10,7 @@ public let defaultRenderer = Renderer(
 
 public func createRenderrer(_ window: OpaquePointer) -> OpaquePointer {
   guard let renderrer = SDL_CreateRenderer(window, -1, 0) else {
-    print("Failed to create Renderer: \(ErrorMessage())")
+    print("Failed to create Renderer: \(errorMessage())")
     fatalError()
   }
   return renderrer

@@ -68,7 +68,7 @@ extension Window {
         self.title, Int32(self.position.x), Int32(self.position.y),
         Int32(self.size.width), Int32(self.size.height), self.type)
     else {
-      print("Failed to create the Window: \(ErrorMessage())")
+      print("Failed to create the Window: \(errorMessage())")
       fatalError()
     }
     return window
@@ -103,7 +103,7 @@ func createWindow(_ size: Size) -> OpaquePointer {
       w.type
     )
   else {
-    print("Failed to create the Window: \(ErrorMessage())")
+    print("Failed to create the Window: \(errorMessage())")
     fatalError()
   }
   // SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN.rawValue)

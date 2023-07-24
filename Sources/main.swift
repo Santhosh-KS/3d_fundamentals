@@ -32,7 +32,7 @@ func destroySetup(with context: Context) {
 
 func initWindow() -> Context {
   if SDL_Init(SDL_INIT_VIDEO) != 0 {
-    print("Failed to initial SDL: \(ErrorMessage())")
+    print("Failed to initial SDL: \(errorMessage())")
     return Context(false, nil, nil, nil)
   }
   let window = defaultWindow.create(getCurrentDisplayMode())
@@ -41,37 +41,67 @@ func initWindow() -> Context {
   return Context(true, window.self, renderer.self, texture)
 }
 
-//let orthoProjection = ProjectionType.orthographic
+struct SomeContainer {
+  let size: Size
+  var pointGenerator: ((min: Int, max: Int), Float) -> [Float]
+  var combination: ([Float]) -> [(Float, Float, Float)]
+  var transfrom3dToPosition: (Vector3D) -> Position
+  var cameraTransformation: (Vector3D) -> Vector3D
+}
 
-let windowCenter = Size(Size().width / 2, Size().height / 2)
-let moveToWinodowCenter = curry(moveToLocation)(windowCenter)
-let points = generate(values: (-1, 1), instep: 0.25)
-let cubePoints = combination(points, points, points).map(Vector3D.init(x:y:z:))
-let cameraPosition = Vector3D(0, 0, -5)
-let adjustCamera = curry(adjustCameraPosition)(cameraPosition)
-/* let projectedPoints = cubePoints.map(
-  adjustCamera >>> orthographicProjection >>> getPosition >>> moveToWinodowCenter) */
+func setup(
+  _ size: Size,
+  _ projectionType: ProjectionType,
+  _ cameraPosition: Vector3D = Vector3D(0, 0, -5)
+) -> SomeContainer {
+  let windowCenter = Size(size.width / 2, size.height / 2)
+  let translateToCenter = curry(moveToLocation)(windowCenter)
+  let adjustCamera = curry(adjustCameraPosition)(cameraPosition)
 
-let projectedPoints = cubePoints.map(
-  adjustCamera >>> perspectiveProjection >>> getPosition >>> moveToWinodowCenter
-)
+  let perspective =
+    adjustCamera
+    >>> perspectiveProjection
+    >>> scale
+    >>> translateToCenter
 
-func update() {}
+  let orthographic =
+    adjustCamera
+    >>> orthographicProjection
+    >>> scale
+    >>> translateToCenter
 
-func render(_ c: Context) {
-  /* SDL_SetRenderDrawColor(c.renderer!, 255, 125, 64, 255)
-  SDL_RenderClear(c.renderer!) */
-  let size = Size()
-  // var data: [UInt32] = Array.init(repeating: 0xFF00_0000, count: size.count)
-  var data: [UInt32] = gridLine(size, 0x0412_3412)
+  var transform3dPositon: (Vector3D) -> Position
+
+  switch projectionType {
+  case .perspective:
+    transform3dPositon = perspective
+  case .orthographic:
+    transform3dPositon = orthographic
+  }
+
+  return SomeContainer.init(
+    size: size,
+    pointGenerator: interpolate,
+    combination: combination,
+    transfrom3dToPosition: transform3dPositon,
+    cameraTransformation: adjustCamera)
+}
+
+func update(_ container: SomeContainer, _ data: inout [UInt32]) {
+  let indices = data.chunkIndices(container.size.height, Int32.init)
+  let points = container.pointGenerator((-1, 1), 0.25)
+  let cubePoints = container.combination(points).map(Vector3D.init(x:y:z:))
+  let projectedPoints = cubePoints.map(container.transfrom3dToPosition)
+  projectedPoints.forEach { pos in
+    let rect = Rectangle(pos, Size(4, 4), 0xFFAA_BBCC)
+    draw(indices, &data, rect, container.size)
+  }
+}
+
+func render(_ c: Context, _ data: inout [UInt32], _ size: Size) {
   let pixels: UnsafeMutablePointer<UInt32> = UnsafeMutablePointer.allocate(
     capacity: size.count)
   defer { pixels.deallocate() }
-  let indices = data.chunkIndices(size.height, Int32.init)
-  projectedPoints.forEach { pos in
-    let rect = Rectangle(pos, Size(4, 4), 0xFFAA_BBCC)
-    draw(indices, &data, rect, size)
-  }
   pixels.initialize(from: &data, count: size.count)
   renderColorBuffer(c.renderer!, c.texture!, pixels)
   // NOTE: DONOT USE pixels variable after the renderColorBuffer() call
@@ -114,14 +144,18 @@ func draw(
   }
 }
 
-let context = initWindow()
-defer { destroySetup(with: context) }
-var loopCount = 0
-var isRunning = context.valid
-while isRunning {
-  loopCount += 1
-  // print("lc: \(loopCount)")
-  isRunning = processInput()
-  update()
-  render(context)
+func run() {
+  let context = initWindow()
+  defer { destroySetup(with: context) }
+  var isRunning = context.valid
+  let size = Size()
+  let container = setup(size, .perspective)
+  var data: [UInt32] = gridLine(size, 0x0412_3412)
+  while isRunning {
+    isRunning = processInput()
+    update(container, &data)
+    render(context, &data, size)
+  }
 }
+
+run()

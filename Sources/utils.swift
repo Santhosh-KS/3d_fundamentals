@@ -23,7 +23,7 @@ public func >>> <A, B, C>(_ f: @escaping (A) -> B, _ g: @escaping (B) -> C) -> (
   return { a in g(f(a)) }
 }
 
-public func ErrorMessage() -> String {
+public func errorMessage() -> String {
   String.init(cString: SDL_GetError()!)
 }
 
@@ -69,11 +69,15 @@ public func combination<A, B, C>(_ xs: [A], _ ys: [B], _ zs: [C]) -> [(A, B, C)]
   combination(combination(xs, ys), zs).map { (a, b) in (a.0, a.1, b) }
 }
 
+public func combination<A>(_ xs: [A]) -> [(A, A, A)] {
+  combination(xs, xs, xs)
+}
+
 public func scale(between min: Int, and max: Int) -> Int {
   abs(min) + abs(max)
 }
 
-public func generate(values between: (min: Int, max: Int), instep of: Float)
+public func interpolate(values between: (min: Int, max: Int), instep of: Float)
   -> [Float]
 {
   let scale = scale(between: between.min, and: between.max)
@@ -109,6 +113,23 @@ public func curry<A, B, C>(_ f: @escaping (A, inout B, C) -> Void)
       f(a, &localb, c)
     }
   }
+}
+
+extension Camera {
+  public init(
+    _ p: Vector3D = Vector3D(),
+    _ r: Vector3D = Vector3D(),
+    _ a: Float = 0
+  ) {
+    self.position = p
+    self.rotation = r
+    self.angle = a
+  }
+}
+
+public enum ProjectionType {
+  case orthographic
+  case perspective
 }
 
 // TODO: Example code to draw rectangle inside a window

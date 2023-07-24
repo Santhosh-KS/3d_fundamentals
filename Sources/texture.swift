@@ -23,7 +23,7 @@ func createTexture(_ renderer: OpaquePointer) -> OpaquePointer {
       Int32(s.height)
     )
   else {
-    print("Failed to create Texture: \(ErrorMessage())")
+    print("Failed to create Texture: \(errorMessage())")
     fatalError()
   }
   return texture
@@ -55,12 +55,12 @@ func renderColorBuffer(
     Int32(Int(size.height) * MemoryLayout<Uint32>.stride)
   )
   if ret != 0 {
-    print("Texture failed: \(ErrorMessage())")
+    print("Texture failed: \(errorMessage())")
     return
   }
 
   ret = SDL_RenderCopy(renderer, texture, nil, nil)
   if ret != 0 {
-    print("Texture RenderCopy failed: \(ErrorMessage())")
+    print("Texture RenderCopy failed: \(errorMessage())")
   }
 }

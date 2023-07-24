@@ -42,29 +42,12 @@ public struct Camera {
   let angle: Float
 }
 
-extension Camera {
-  public init(
-    _ p: Vector3D = Vector3D(),
-    _ r: Vector3D = Vector3D(),
-    _ a: Float = 0
-  ) {
-    self.position = p
-    self.rotation = r
-    self.angle = a
-  }
-}
-
-enum ProjectionType {
-  case orthographic(_ v: Vector3D)
-  case perspective(_ v: Vector3D)
-}
-
 // Orthographic projection
 func orthographicProjection(_ v: Vector3D) -> Vector2D {
   Vector2D(v.x, v.y)
 }
 
-func getPosition(_ v: Vector2D) -> Position {
+func scale(_ v: Vector2D) -> Position {
   let fovConst: Float = 640.0  // TODO: Fix this adjustments
   return Position.init(x: Int(v.x * fovConst), y: Int(v.y * fovConst))
 }
