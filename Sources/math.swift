@@ -34,6 +34,14 @@ extension Vector3D {
   static func + (_ lhs: Self, _ rhs: Self) -> Self {
     Vector3D(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z)
   }
+
+  static func + (_ lhs: Self, _ rhs: Float) -> Self {
+    Vector3D(lhs.x + rhs, lhs.y + rhs, lhs.z + rhs)
+  }
+
+  static func + (_ lhs: Float, _ rhs: Self) -> Self {
+    rhs + lhs
+  }
 }
 
 public struct Camera {
@@ -65,4 +73,29 @@ func adjustCameraPosition(_ v: Vector3D, _ camPos: Vector3D) -> Vector3D {
 
 func moveToLocation(_ s: Size, _ p: Position) -> Position {
   Position(x: p.x + s.width, y: p.y + s.height)
+}
+
+enum Axis {
+  case x, y, z
+}
+
+//func rotate(_ p: Vector3D, _ axis: Axis, _ angle: Float) -> Vector3D {
+func rotate(_ axis: Axis, _ angle: Float, _ p: Vector3D) -> Vector3D {
+  switch axis {
+  case .x:
+    return Vector3D(
+      p.x,
+      (p.y * cos(angle) - p.z * sin(angle)),
+      (p.y * sin(angle) + p.z * cos(angle)))
+  case .y:
+    return Vector3D(
+      (p.x * cos(angle) - p.z * sin(angle)),
+      p.y,
+      (p.y * sin(angle) + p.z * cos(angle)))
+  case .z:
+    return Vector3D(
+      (p.x * cos(angle) - p.y * sin(angle)),
+      (p.y * sin(angle) + p.y * cos(angle)),
+      p.z)
+  }
 }

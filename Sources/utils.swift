@@ -87,21 +87,16 @@ public func interpolate(values between: (min: Int, max: Int), instep of: Float)
   }
 }
 
+public func curry<A, B, C, D>(_ f: @escaping (A, B, C) -> D) -> (A) -> (B) -> (
+  C
+) -> D {
+  return { a in { b in { c in f(a, b, c) } } }
+}
+
 public func curry<A, B, C>(_ f: @escaping (A, B) -> C) -> (A) -> (B) -> C {
   return { a in { b in f(a, b) } }
 }
 
-public func curry<A, B, C>(_ f: @escaping (A, B, C) -> Void) -> (A) -> (B) -> (
-  C
-) -> Void {
-  return { a in { b in { c in f(a, b, c) } } }
-}
-
-/* let fixedWindowRectangle = curry(draw)(indices, &mv)
-
-// draw(indices, &mv, testRect)
-fixedWindowRectangle(testRect)
-mv.chunks(windowSize.width).map { print($0) } */
 // TODO: Fix the issues with @escaping with inout argument B
 public func curry<A, B, C>(_ f: @escaping (A, inout B, C) -> Void)
   -> (A, inout B) -> (C) -> Void
@@ -131,55 +126,3 @@ public enum ProjectionType {
   case orthographic
   case perspective
 }
-
-// TODO: Example code to draw rectangle inside a window
-/* let testRect = Rectangle.init(Position(2, 1), Size(4, 3), 2)
-let testRect1 = Rectangle.init(Position(3, 3), Size(4, 3), 3)
-let testRect2 = Rectangle.init(Position(1, 6), Size(3, 3), 4)
-
-var rectPos = Position(x: 3, y: 0)
-let windowSize = Size(width: 48, height: 48)
-var mv = [UInt32]()
-mv.append(repeating: 1, count: windowSize.count)
-let indices = mv.chunkIndices(Int(windowSize.width), Int32.init)
-
-//for i in indices {
-/* indices.forEach { i in
-  if (testRect.position.y ... testRect.size.height).contains(
-    Int(i) / Int(windowSize.width))
-  {
-    (testRect.position.x ... testRect.size.width + 1).forEach { j in
-      mv[Int(i) + j] = testRect.color
-    }
-  }
-} */
-
-draw(indices, &mv, testRect, windowSize)
-mv.chunks(windowSize.width).map { print($0) }
-
-/* draw(indices, &mv, testRect1)
-mv.chunks(windowSize.width).map { print($0) }
-
-draw(indices, &mv, testRect2)
-mv.chunks(windowSize.width).map { print($0) } */ */
-
-// Example code end
-
-/* struct RGBA {
-  let R: UInt8
-  let G: UInt8
-  let B: UInt8
-  let A: UInt8
-}
-
-struct ColorBuffer {
-  let width: UInt64
-  let height: UInt64
-}
-
-extension ColorBuffer {
-  init(as windowSize: Size) {
-    self.width = windowSize.width
-    self.height = windowSize.height
-  }
-} */

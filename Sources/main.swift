@@ -49,6 +49,25 @@ struct SomeContainer {
   var cameraTransformation: (Vector3D) -> Vector3D
 }
 
+struct Data<A, B> {
+  /// given a min and max value and the steps this function will generate the
+  /// array of values
+  /// var pointGenerator: ((min: Int, max: Int), Float) -> [Float]
+  let gen: (A, A, B) -> [B]
+}
+
+struct Combinator<A, B, C> {
+  /// var combination: ([Float]) -> [(Float, Float, Float)]
+  let gen: ([A], [B], [C]) -> [(A, B, C)]
+}
+
+struct Transformer {
+  //var transfrom3dToPosition: (Vector3D) -> position
+  let scale: (Vector3D, Float) -> Vector3D
+  let rotate: (Vector3D, Axis, Float) -> Vector3D
+  let translate: (Vector3D, Vector3D) -> Vector3D
+}
+
 func setup(
   _ size: Size,
   _ projectionType: ProjectionType,
@@ -58,6 +77,7 @@ func setup(
   let translateToCenter = curry(moveToLocation)(windowCenter)
   let adjustCamera = curry(adjustCameraPosition)(cameraPosition)
 
+  // rotate(_ axis: Axis, _ angle: Float, _ p: Vector3D)
   let perspective =
     adjustCamera
     >>> perspectiveProjection
@@ -87,10 +107,21 @@ func setup(
     cameraTransformation: adjustCamera)
 }
 
+var rotator = Vector3D(0, 0, 0)
+let rotatorY = Vector3D(0, 0, 0.1)
+let points = interpolate(values: (-1, 1), instep: 0.25)
+var cubePoints = combination(points).map(Vector3D.init(x:y:z:))
+
 func update(_ container: SomeContainer, _ data: inout [UInt32]) {
   let indices = data.chunkIndices(container.size.height, Int32.init)
-  let points = container.pointGenerator((-1, 1), 0.25)
-  let cubePoints = container.combination(points).map(Vector3D.init(x:y:z:))
+
+  let rotation = curry(rotate)(Axis.x)(0.1)
+  /* let rotationY = curry(rotate)(Axis.y)(0.1)
+  let rotationZ = curry(rotate)(Axis.z)(0.1)
+  let rotation = rotationX >>> rotationY >>> rotationZ
+  rotator = rotator + rotatorY  */
+  let modifiedCubePoints = cubePoints.map(rotation)
+  cubePoints = modifiedCubePoints
   let projectedPoints = cubePoints.map(container.transfrom3dToPosition)
   projectedPoints.forEach { pos in
     let rect = Rectangle(pos, Size(4, 4), 0xFFAA_BBCC)
@@ -150,7 +181,8 @@ func run() {
   var isRunning = context.valid
   let size = Size()
   let container = setup(size, .perspective)
-  var data: [UInt32] = gridLine(size, 0x0412_3412)
+  let color: Uint32 = 0x0412_3412
+  var data: [UInt32] = gridLine(size, color)
   while isRunning {
     isRunning = processInput()
     update(container, &data)
