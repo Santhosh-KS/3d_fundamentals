@@ -91,11 +91,11 @@ func rotate(_ axis: Axis, _ angle: Float, _ p: Vector3D) -> Vector3D {
     return Vector3D(
       (p.x * cos(angle) - p.z * sin(angle)),
       p.y,
-      (p.y * sin(angle) + p.z * cos(angle)))
+      (p.x * sin(angle) + p.z * cos(angle)))
   case .z:
     return Vector3D(
       (p.x * cos(angle) - p.y * sin(angle)),
-      (p.y * sin(angle) + p.y * cos(angle)),
+      (p.x * sin(angle) + p.y * cos(angle)),
       p.z)
   }
 }
