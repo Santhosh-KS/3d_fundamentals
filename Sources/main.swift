@@ -107,17 +107,17 @@ func setup(
     cameraTransformation: adjustCamera)
 }
 
-let rotatorY = Vector3D(0, 0, 0)
-let points = interpolate(values: (-1, 1), instep: 0.25)
-var cubePoints = combination(points).map(Vector3D.init(x:y:z:))
-
-func update(_ container: SomeContainer, _ data: inout [UInt32]) {
+func update(
+  _ container: SomeContainer, _ cubePoints: inout [Vector3D],
+  _ data: inout [UInt32]
+) {
   let indices = data.chunkIndices(container.size.height, Int32.init)
 
-  let rotationX = curry(rotate)(Axis.x)(0.1)
-  let rotationY = curry(rotate)(Axis.y)(0.1)
-  let rotationZ = curry(rotate)(Axis.z)(0.1)
+  let rotationX = curry(rotate)(Axis.x)(0.15)
+  let rotationY = curry(rotate)(Axis.y)(0.2)
+  let rotationZ = curry(rotate)(Axis.z)(0.01)
   let rotation = rotationX >>> rotationY >>> rotationZ
+
   let modifiedCubePoints = cubePoints.map(rotation)
   cubePoints = modifiedCubePoints
   let projectedPoints = cubePoints.map(container.transfrom3dToPosition)
@@ -181,9 +181,11 @@ func run() {
   let container = setup(size, .perspective)
   let color: Uint32 = 0x0412_3412
   var data: [UInt32] = gridLine(size, color)
+  let points = interpolate(values: (-1, 1), instep: 0.25)
+  var cubePoints = combination(points).map(Vector3D.init(x:y:z:))
   while isRunning {
     isRunning = processInput()
-    update(container, &data)
+    update(container, &cubePoints, &data)
     render(context, &data, size)
     /// reset the data
     data = gridLine(size, color)
