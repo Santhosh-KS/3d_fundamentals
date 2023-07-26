@@ -115,22 +115,40 @@ func sdlTicksPassed(_ a: UInt32, _ b: UInt32) -> Bool {
   Sint32(a - b) <= 0
 }
 
-func drawCubePoints(
+enum CubeType {
+  case swarm, vertex
+}
+
+func getPoints(_ type: CubeType) -> [Vector3D] {
+  switch type {
+  case .swarm:
+    let points = interpolate(values: (-1, 1), instep: 0.25)
+    return combination(points).map(Vector3D.init(x:y:z:))
+  case .vertex:
+    let m = defaultCube.mesh()
+    var points = [Vector3D]()
+    defaultCube.faces().forEach { face in
+      points.append(m[face.a - 1] |> Vector3D.init(x:y:z:))
+      points.append(m[face.b - 1] |> Vector3D.init(x:y:z:))
+      points.append(m[face.c - 1] |> Vector3D.init(x:y:z:))
+    }
+    return points
+  }
+}
+
+func update(
   _ container: SomeContainer, _ cubePoints: inout [Vector3D],
   _ data: inout [UInt32]
 ) {
-  /* let points = interpolate(values: (-1, 1), instep: 0.25)
-  var cubePoints = combination(points).map(Vector3D.init(x:y:z:))
-  let container = setup(size, .perspective) */
+  /*
   let a = Int(FRAME_TARGET_TIME)
   let b = SDL_GetTicks()
   let c = prevFrameTime
-  print(Int(b - c))
   let timeToWait: Int = a - Int(b - c)
   if timeToWait > 0 && timeToWait <= Int(FRAME_TARGET_TIME) {
     SDL_Delay(UInt32(FRAME_TARGET_TIME))
   }
-  prevFrameTime = SDL_GetTicks()
+  prevFrameTime = SDL_GetTicks() */
   let indices = data.chunkIndices(container.size.height, Int32.init)
 
   let rotationX = curry(rotate)(Axis.x)(0.15)
@@ -140,18 +158,12 @@ func drawCubePoints(
 
   let modifiedCubePoints = cubePoints.map(rotation)
   cubePoints = modifiedCubePoints
+
   let projectedPoints = cubePoints.map(container.transfrom3dToPosition)
   projectedPoints.forEach { pos in
     let rect = Rectangle(pos, Size(4, 4), 0xFFAA_BBCC)
     draw(indices, &data, rect, container.size)
   }
-}
-
-func update(
-  _ container: SomeContainer, _ cubePoints: inout [Vector3D],
-  _ data: inout [UInt32]
-) {
-
 }
 
 func render(_ c: Context, _ data: inout [UInt32], _ size: Size) {
@@ -208,8 +220,7 @@ func run() {
   let color: Uint32 = 0x0412_3412
   var data: [UInt32] = gridLine(size, color)
   let container = setup(size, .perspective)
-  let points = interpolate(values: (-1, 1), instep: 0.25)
-  var cubePoints = combination(points).map(Vector3D.init(x:y:z:))
+  var cubePoints = getPoints(.vertex)
   while isRunning {
     isRunning = processInput()
     update(container, &cubePoints, &data)
