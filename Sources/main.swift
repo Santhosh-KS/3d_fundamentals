@@ -115,11 +115,12 @@ func sdlTicksPassed(_ a: UInt32, _ b: UInt32) -> Bool {
   Sint32(a - b) <= 0
 }
 
-enum CubeType {
+enum PointType {
   case swarm, vertex
+  case line(Vector3D, Vector3D)
 }
 
-func getPoints(_ type: CubeType) -> [Vector3D] {
+func getPoints(_ type: PointType) -> [Vector3D] {
   switch type {
   case .swarm:
     let points = interpolate(values: (-1, 1), instep: 0.25)
@@ -133,11 +134,69 @@ func getPoints(_ type: CubeType) -> [Vector3D] {
       points.append(m[face.c - 1] |> Vector3D.init(x:y:z:))
     }
     return points
+  // case let .line(x0, y0, x1, y1):
+  case let .line(p1, p2):
+    return getLinePoints(p1, p2)
   }
 }
 
+func floatRound(_ x: Float) -> Float {
+  Float(round(Double(x)))
+}
+
+/* func getLinePoints(_ x0: Float, _ y0: Float, _ x1: Float, _ y1: Float) -> [Vector3D] {
+  let deltaX = (x1 - x0)
+  let deltaY = (y1 - y0)
+
+  let longestSideLength =
+    (abs(deltaX) >= abs(deltaY)) ? abs(deltaX) : abs(deltaY)
+  print("longestSideLength: \(longestSideLength)")
+  let xInc = deltaX / longestSideLength
+  let yInc = deltaY / longestSideLength
+  var currentX = x0
+  var currentY = y0
+  var linePoints = [Vector3D]()
+  //(0 ... Int(longestSideLength)).forEach { index in
+  (0 ... 10).forEach { index in
+    linePoints.append(
+      // Vector3D.init(x: floatRound(currentX), y: floatRound(currentX), z: 0))
+      Vector3D.init(x: currentX, y: currentX, z: 0))
+    currentX += xInc
+    currentY += yInc
+  }
+  return linePoints
+} */
+
+// DDA algorithm to drawLine
+// func getLinePoints(_ x0: Float, _ y0: Float, _ x1: Float, _ y1: Float) -> [Vector3D] {
+func getLinePoints(_ p1:Vector3D, _ p2:Vector3D) -> [Vector3D] {
+  let deltaPoint = p2 - p1
+
+  let slope = deltaPoint.y/(deltaPoint.x + 0.0001)
+  let ys = interpolate(values:(Int(min(p1.y, p2.y)), Int(max(p1.y, p2.y))), instep: slope)
+  let xs = ys.map { $0 * slope}
+  let points = zip(xs, ys).map { pairs in Vector3D(pairs.0, pairs.1, 0)}
+
+    // (abs(deltaX) >= abs(deltaY)) ? abs(deltaX) : abs(deltaY)
+  /* print("longestSideLength: \(longestSideLength)")
+  let xInc = deltaPoint / longestSideLength
+  let yInc = deltaY / longestSideLength
+  var currentX = x0
+  var currentY = y0
+  var linePoints = [Vector3D]()
+  //(0 ... Int(longestSideLength)).forEach { index in
+  (0 ... 10).forEach { index in
+    linePoints.append(
+      // Vector3D.init(x: floatRound(currentX), y: floatRound(currentX), z: 0))
+      Vector3D.init(x: currentX, y: currentX, z: 0))
+    currentX += xInc
+    currentY += yInc
+  } */
+  return points 
+}
+
 func update(
-  _ container: SomeContainer, _ cubePoints: inout [Vector3D],
+  _ container: SomeContainer, _ points: inout [Vector3D],
   _ data: inout [UInt32]
 ) {
   /*
@@ -156,10 +215,10 @@ func update(
   let rotationZ = curry(rotate)(Axis.z)(0.01)
   let rotation = rotationX >>> rotationY >>> rotationZ
 
-  let modifiedCubePoints = cubePoints.map(rotation)
-  cubePoints = modifiedCubePoints
+  let modifiedPoints = points.map(rotation)
+  points = modifiedPoints
 
-  let projectedPoints = cubePoints.map(container.transfrom3dToPosition)
+  let projectedPoints = points.map(container.transfrom3dToPosition)
   projectedPoints.forEach { pos in
     let rect = Rectangle(pos, Size(4, 4), 0xFFAA_BBCC)
     draw(indices, &data, rect, container.size)
@@ -220,10 +279,16 @@ func run() {
   let color: Uint32 = 0x0412_3412
   var data: [UInt32] = gridLine(size, color)
   let container = setup(size, .perspective)
-  var cubePoints = getPoints(.vertex)
+  var points = getPoints(.vertex)
+  let x0 = points.first!.x
+  let x1 = points[2].x
+  let y0 = points.first!.y
+  let y1 = points[2].y
+  var linePoints = getPoints(.line(points.first!,points.last!))
+  print("linePoints count: \(linePoints.count)")
   while isRunning {
     isRunning = processInput()
-    update(container, &cubePoints, &data)
+    update(container, &linePoints, &data)
     render(context, &data, size)
     /// reset the data
     data = gridLine(size, color)
