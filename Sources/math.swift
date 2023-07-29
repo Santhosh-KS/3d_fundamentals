@@ -18,6 +18,12 @@ public struct Vector3D {
   let z: Float
 }
 
+extension Vector3D:CustomStringConvertible {
+    public var description: String {
+          return "\(self.x), \(self.y),\(self.z))"
+      }
+}
+
 extension Vector3D {
   public init(_ x: Float = 0, _ y: Float = 0, _ z: Float = 0) {
     self.x = x

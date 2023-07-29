@@ -173,25 +173,9 @@ func getLinePoints(_ p1:Vector3D, _ p2:Vector3D) -> [Vector3D] {
   let deltaPoint = p2 - p1
 
   let slope = deltaPoint.y/(deltaPoint.x + 0.0001)
-  let ys = interpolate(values:(Int(min(p1.y, p2.y)), Int(max(p1.y, p2.y))), instep: slope)
+  let ys = interpolate(values:(-1, 1), instep: 0.0025)
   let xs = ys.map { $0 * slope}
   let points = zip(xs, ys).map { pairs in Vector3D(pairs.0, pairs.1, 0)}
-
-    // (abs(deltaX) >= abs(deltaY)) ? abs(deltaX) : abs(deltaY)
-  /* print("longestSideLength: \(longestSideLength)")
-  let xInc = deltaPoint / longestSideLength
-  let yInc = deltaY / longestSideLength
-  var currentX = x0
-  var currentY = y0
-  var linePoints = [Vector3D]()
-  //(0 ... Int(longestSideLength)).forEach { index in
-  (0 ... 10).forEach { index in
-    linePoints.append(
-      // Vector3D.init(x: floatRound(currentX), y: floatRound(currentX), z: 0))
-      Vector3D.init(x: currentX, y: currentX, z: 0))
-    currentX += xInc
-    currentY += yInc
-  } */
   return points 
 }
 
@@ -220,7 +204,7 @@ func update(
 
   let projectedPoints = points.map(container.transfrom3dToPosition)
   projectedPoints.forEach { pos in
-    let rect = Rectangle(pos, Size(4, 4), 0xFFAA_BBCC)
+    let rect = Rectangle(pos, Size(1, 1), 0xFFAA_BBCC)
     draw(indices, &data, rect, container.size)
   }
 }
@@ -280,10 +264,6 @@ func run() {
   var data: [UInt32] = gridLine(size, color)
   let container = setup(size, .perspective)
   var points = getPoints(.vertex)
-  let x0 = points.first!.x
-  let x1 = points[2].x
-  let y0 = points.first!.y
-  let y1 = points[2].y
   var linePoints = getPoints(.line(points.first!,points.last!))
   print("linePoints count: \(linePoints.count)")
   while isRunning {
